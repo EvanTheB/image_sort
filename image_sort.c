@@ -1,13 +1,32 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "libgen.h"
+#include <stdio.h>
 
-SDL_Texture* load_texture(const char* fname, SDL_Renderer *renderer)
+SDL_Texture* load_texture(const char *fname, SDL_Renderer *renderer)
 {
     printf("load %s\n", fname);
     SDL_Surface *image_surface = IMG_Load(fname);
     SDL_Texture *ret = SDL_CreateTextureFromSurface(renderer, image_surface);
     SDL_FreeSurface(image_surface);
     return ret;
+}
+
+void move_image(const char *fname, const char *dest)
+{
+    char *dir = malloc(strlen(fname) + 1);
+    strcpy(dir, fname);
+    char *base = malloc(strlen(fname) + 1);
+    strcpy(base, fname);
+    char *new_loc = malloc(strlen(fname) + strlen(dest) + 2 + 1);
+
+    sprintf(new_loc, "%s/%s/%s", dirname(dir), dest, basename(base));
+    printf("move %s\nto %s\n", fname, new_loc);
+    // rename(fname, new_loc);
+
+    free(dir);
+    free(base);
+    free(new_loc);
 }
 
 int main(int argc, char const *argv[])
@@ -59,13 +78,13 @@ int main(int argc, char const *argv[])
                     quit = 1;
                     break;
                 case SDLK_a:
-                    printf("delete %s\n", image_fnames[cur_start_texture]);
+                    move_image(image_fnames[cur_start_texture], "delete");
                     goto next_image;
                 case SDLK_s:
-                    printf("bad %s\n", image_fnames[cur_start_texture]);
+                    move_image(image_fnames[cur_start_texture], "bad");
                     goto next_image;
                 case SDLK_d:
-                    printf("ok %s\n", image_fnames[cur_start_texture]);
+                    move_image(image_fnames[cur_start_texture], "good");
                     goto next_image;
                 case SDLK_z:
                 next_image:
