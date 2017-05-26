@@ -3,6 +3,7 @@
 
 SDL_Texture* load_texture(const char* fname, SDL_Renderer *renderer)
 {
+    printf("load %s\n", fname);
     SDL_Surface *image_surface = IMG_Load(fname);
     SDL_Texture *ret = SDL_CreateTextureFromSurface(renderer, image_surface);
     SDL_FreeSurface(image_surface);
@@ -20,18 +21,27 @@ int main(int argc, char const *argv[])
     SDL_Rect dst_rect;
 
     SDL_Texture *image_textures[5];
-    int cur_start_texture = 0;
     SDL_Surface *image_surface;
 
-    image_textures[0] = load_texture(argv[1], renderer);
-    image_textures[1] = load_texture(argv[2], renderer);
-    image_textures[2] = load_texture(argv[3], renderer);
-    image_textures[3] = load_texture(argv[4], renderer);
-    image_textures[4] = load_texture(argv[5], renderer);
+    int cur_image = 1;
+    for (cur_image = 1; cur_image < argc && cur_image <= 4; ++cur_image)
+    {
+        image_textures[cur_image-1] = load_texture(argv[cur_image], renderer);
+    }
+
 
     SDL_Event e;
     int quit = 0;
+    int b_load_image = 1;
+    int cur_start_texture = 0;
     while (!quit) {
+        if (b_load_image){
+            b_load_image = 0;
+            if (cur_image < argc) {
+                image_textures[(cur_start_texture + 4) % 5] = load_texture(argv[cur_image], renderer);
+            }
+            cur_image++;
+        }
         while (SDL_PollEvent(&e)){
             //If user closes the window
             if (e.type == SDL_QUIT){
@@ -44,8 +54,10 @@ int main(int argc, char const *argv[])
                     quit = 1;
                     break;
                 case SDLK_z:
+                    SDL_DestroyTexture(image_textures[cur_start_texture]);
+                    image_textures[cur_start_texture] = NULL;
                     cur_start_texture = (cur_start_texture + 1) % 5;
-
+                    b_load_image = 1;
                     break;
                 }
             }
