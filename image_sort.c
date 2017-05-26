@@ -1,6 +1,14 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 
+SDL_Texture* load_texture(const char* fname, SDL_Renderer *renderer)
+{
+    SDL_Surface *image_surface = IMG_Load(fname);
+    SDL_Texture *ret = SDL_CreateTextureFromSurface(renderer, image_surface);
+    SDL_FreeSurface(image_surface);
+    return ret;
+}
+
 int main(int argc, char const *argv[])
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -15,26 +23,11 @@ int main(int argc, char const *argv[])
     int cur_start_texture = 0;
     SDL_Surface *image_surface;
 
-    image_surface = IMG_Load("test_image_0.jpg");
-    image_textures[0] = SDL_CreateTextureFromSurface(renderer, image_surface);
-    SDL_FreeSurface(image_surface);
-
-    image_surface = IMG_Load("test_image_1.jpg");
-    image_textures[1] = SDL_CreateTextureFromSurface(renderer, image_surface);
-    SDL_FreeSurface(image_surface);
-
-    image_surface = IMG_Load("test_image_2.jpg");
-    image_textures[2] = SDL_CreateTextureFromSurface(renderer, image_surface);
-    SDL_FreeSurface(image_surface);
-
-    image_surface = IMG_Load("test_image_3.jpg");
-    image_textures[3] = SDL_CreateTextureFromSurface(renderer, image_surface);
-    SDL_FreeSurface(image_surface);
-
-    image_surface = IMG_Load("test_image_4.jpg");
-    image_textures[4] = SDL_CreateTextureFromSurface(renderer, image_surface);
-    SDL_FreeSurface(image_surface);
-
+    image_textures[0] = load_texture(argv[1], renderer);
+    image_textures[1] = load_texture(argv[2], renderer);
+    image_textures[2] = load_texture(argv[3], renderer);
+    image_textures[3] = load_texture(argv[4], renderer);
+    image_textures[4] = load_texture(argv[5], renderer);
 
     SDL_Event e;
     int quit = 0;
