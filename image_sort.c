@@ -21,12 +21,14 @@ int main(int argc, char const *argv[])
     SDL_Rect dst_rect;
 
     SDL_Texture *image_textures[5];
+    const char *image_fnames[5];
     SDL_Surface *image_surface;
 
     int cur_image = 1;
     for (cur_image = 1; cur_image < argc && cur_image <= 4; ++cur_image)
     {
         image_textures[cur_image-1] = load_texture(argv[cur_image], renderer);
+        image_fnames[cur_image-1] = argv[cur_image];
     }
 
 
@@ -34,17 +36,20 @@ int main(int argc, char const *argv[])
     int quit = 0;
     int b_load_image = 1;
     int cur_start_texture = 0;
-    while (!quit) {
+    while (!quit && image_fnames[cur_start_texture]) {
+        // buffer the next image
         if (b_load_image){
             b_load_image = 0;
             if (cur_image < argc) {
                 image_textures[(cur_start_texture + 4) % 5] = load_texture(argv[cur_image], renderer);
+                image_fnames[(cur_start_texture + 4) % 5] = argv[cur_image];
             }
             cur_image++;
         }
         while (SDL_PollEvent(&e)){
             //If user closes the window
-            if (e.type == SDL_QUIT){
+            if (e.type == SDL_QUIT)
+            {
                 quit = 1;
             }
             //If user presses any key
@@ -53,9 +58,21 @@ int main(int argc, char const *argv[])
                 case SDLK_q:
                     quit = 1;
                     break;
+                case SDLK_a:
+                    printf("delete %s\n", image_fnames[cur_start_texture]);
+                    goto next_image;
+                case SDLK_s:
+                    printf("bad %s\n", image_fnames[cur_start_texture]);
+                    goto next_image;
+                case SDLK_d:
+                    printf("ok %s\n", image_fnames[cur_start_texture]);
+                    goto next_image;
                 case SDLK_z:
+                next_image:
                     SDL_DestroyTexture(image_textures[cur_start_texture]);
                     image_textures[cur_start_texture] = NULL;
+                    image_fnames[cur_start_texture] = NULL;
+
                     cur_start_texture = (cur_start_texture + 1) % 5;
                     b_load_image = 1;
                     break;
