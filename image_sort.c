@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *screen = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_MAXIMIZED);
-    SDL_Renderer *renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer *renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
 
     int w,h;
     SDL_Rect dst_rect;
@@ -70,6 +70,32 @@ int main(int argc, char const *argv[])
     int b_load_image = 1;
     int cur_start_texture = 0;
     while (!quit && image_fnames[cur_start_texture]) {
+        SDL_GetWindowSize(screen, &w, &h);
+
+        SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+        SDL_RenderClear(renderer);
+
+        dst_rect.x = 0;
+        dst_rect.y = 0;
+        dst_rect.w = w/2;
+        dst_rect.h = h/2;
+        SDL_RenderCopy(renderer, image_textures[cur_start_texture], NULL, &dst_rect);
+        
+        dst_rect.x = w/2;
+        dst_rect.y = 0;
+        SDL_RenderCopy(renderer, image_textures[(cur_start_texture + 1) % 5], NULL, &dst_rect);
+        
+        dst_rect.x = 0;
+        dst_rect.y = h/2;
+        SDL_RenderCopy(renderer, image_textures[(cur_start_texture + 2) % 5], NULL, &dst_rect);
+        
+        dst_rect.x = w/2;
+        dst_rect.y = h/2;
+        SDL_RenderCopy(renderer, image_textures[(cur_start_texture + 3) % 5], NULL, &dst_rect);
+        
+        SDL_RenderPresent(renderer);
+
+        
         // buffer the next image
         if (b_load_image){
             b_load_image = 0;
@@ -79,7 +105,7 @@ int main(int argc, char const *argv[])
             }
             cur_image++;
         }
-        while (SDL_PollEvent(&e)){
+        if (SDL_WaitEvent(&e)){
             //If user closes the window
             if (e.type == SDL_QUIT)
             {
@@ -112,30 +138,6 @@ int main(int argc, char const *argv[])
                 }
             }
         }
-        SDL_GetWindowSize(screen, &w, &h);
-
-        SDL_SetRenderDrawColor(renderer, 0,0,0,255);
-        SDL_RenderClear(renderer);
-
-        dst_rect.x = 0;
-        dst_rect.y = 0;
-        dst_rect.w = w/2;
-        dst_rect.h = h/2;
-        SDL_RenderCopy(renderer, image_textures[cur_start_texture], NULL, &dst_rect);
-        
-        dst_rect.x = w/2;
-        dst_rect.y = 0;
-        SDL_RenderCopy(renderer, image_textures[(cur_start_texture + 1) % 5], NULL, &dst_rect);
-        
-        dst_rect.x = 0;
-        dst_rect.y = h/2;
-        SDL_RenderCopy(renderer, image_textures[(cur_start_texture + 2) % 5], NULL, &dst_rect);
-        
-        dst_rect.x = w/2;
-        dst_rect.y = h/2;
-        SDL_RenderCopy(renderer, image_textures[(cur_start_texture + 3) % 5], NULL, &dst_rect);
-        
-        SDL_RenderPresent(renderer);
     }
 
     SDL_DestroyTexture(image_textures[0]);
