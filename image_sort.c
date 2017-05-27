@@ -1,7 +1,9 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
-#include "libgen.h"
 #include <stdio.h>
+
+#include "libgen.h"
+#include "sys/stat.h"
 
 SDL_Texture* load_texture(const char *fname, SDL_Renderer *renderer)
 {
@@ -20,9 +22,22 @@ void move_image(const char *fname, const char *dest)
     strcpy(base, fname);
     char *new_loc = malloc(strlen(fname) + strlen(dest) + 2 + 1);
 
+    sprintf(new_loc, "%s/%s", dirname(dir), dest);
+    printf("mkdir %s\n", new_loc);
+    mkdir(new_loc, 0777);
+
     sprintf(new_loc, "%s/%s/%s", dirname(dir), dest, basename(base));
     printf("move %s\nto %s\n", fname, new_loc);
-    // rename(fname, new_loc);
+    rename(fname, new_loc);
+
+    // move RAF
+    strcpy(dir, fname);
+    int j = strlen(dir);
+    int i = strlen(new_loc);
+    new_loc[i-3] = dir[j-3] = 'R';
+    new_loc[i-2] = dir[j-2] = 'A';
+    new_loc[i-1] = dir[j-1] = 'F';
+    rename(dir, new_loc);
 
     free(dir);
     free(base);
@@ -41,7 +56,6 @@ int main(int argc, char const *argv[])
 
     SDL_Texture *image_textures[5];
     const char *image_fnames[5];
-    SDL_Surface *image_surface;
 
     int cur_image = 1;
     for (cur_image = 1; cur_image < argc && cur_image <= 4; ++cur_image)
